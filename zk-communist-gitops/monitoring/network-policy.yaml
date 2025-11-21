@@ -1,0 +1,193 @@
+---
+# Network Policy for stealth operations
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: network-monitoring-network-policy
+  namespace: monitoring
+  labels:
+    app: network-monitoring
+    component: network-policy
+  annotations:
+    description: "Network security policy for network monitoring service"
+    contact: "security@company.internal"
+
+spec:
+  podSelector:
+    matchLabels:
+      app: network-monitoring
+  policyTypes:
+  - Egress
+  - Ingress
+
+  # Ingress rules - restrict access to legitimate sources only
+  ingress:
+  # Allow traffic from monitoring namespace (Prometheus, etc.)
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+    - podSelector:
+        matchLabels:
+          app: prometheus
+    ports:
+    - protocol: TCP
+      port: 8012  # HTTP API
+    - protocol: TCP
+      port: 9090  # Metrics
+
+  # Allow traffic from kube-system (DNS, health checks)
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+    ports:
+    - protocol: TCP
+      port: 8012  # Health checks
+    - protocol: UDP
+      port: 53    # DNS
+
+  # Allow traffic from default namespace (admin access)
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: default
+    - podSelector: {}
+    ports:
+    - protocol: TCP
+      port: 8012
+
+  # Egress rules - allow only legitimate communications
+  egress:
+  # Allow communication with ZKTeco devices in default namespace
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: default  # ZKTeco devices typically in default namespace
+    - podSelector: {}
+    ports:
+    - protocol: UDP
+      port: 4370  # ZKTeco device communication
+
+  # Allow DNS resolution
+  - to: []
+    ports:
+    - protocol: UDP
+      port: 53    # DNS
+    - protocol: TCP
+      port: 53    # DNS over TCP
+
+  # Allow HTTPS for system updates and package downloads
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443   # HTTPS
+
+  # Allow HTTP for package downloads (use with caution)
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 80    # HTTP
+
+  # Allow communication within monitoring namespace
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+    ports:
+    - protocol: TCP
+      port: 8012  # Service communication
+    - protocol: TCP
+      port: 9090  # Metrics
+    - protocol: TCP
+      port: 53    # Internal DNS
+
+  # Allow communication with kube-system
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+    ports:
+    - protocol: TCP
+      port: 443   # Kubernetes API
+    - protocol: TCP
+      port: 53    # DNS
+    - protocol: UDP
+      port: 53    # DNS
+
+---
+# Network Policy for external access (if needed)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: network-monitoring-external-policy
+  namespace: monitoring
+  labels:
+    app: network-monitoring
+    component: external-policy
+  annotations:
+    description: "External network access policy for network monitoring service"
+
+spec:
+  podSelector:
+    matchLabels:
+      app: network-monitoring
+  policyTypes:
+  - Egress
+
+  egress:
+  # Allow specific external IPs for device communication
+  - to:
+    - ipBlock:
+        cidr: 192.168.0.0/16  # Corporate network
+    ports:
+    - protocol: UDP
+      port: 4370
+
+  - to:
+    - ipBlock:
+        cidr: 10.0.0.0/8      # Private network
+    ports:
+    - protocol: UDP
+      port: 4370
+
+  - to:
+    - ipBlock:
+        cidr: 172.16.0.0/12   # Private network
+    ports:
+    - protocol: UDP
+      port: 4370
+
+  # Block external access except for specific ports
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443   # HTTPS only
+    - protocol: UDP
+      port: 53    # DNS only
+    - protocol: TCP
+      port: 53    # DNS over TCP
+
+---
+# Deny policy (if default deny is not enabled)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: network-monitoring-deny-all
+  namespace: monitoring
+  labels:
+    app: network-monitoring
+    component: deny-policy
+  annotations:
+    description: "Default deny policy for network monitoring service"
+
+spec:
+  podSelector:
+    matchLabels:
+      app: network-monitoring
+  policyTypes:
+  - Ingress
+  - Egress
+
+  # This policy denies all traffic that doesn't match other policies
+  # Empty rules means deny all traffic

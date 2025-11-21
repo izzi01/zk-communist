@@ -1,0 +1,260 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: monitoring
+  labels:
+    app: prometheus
+    component: config
+  annotations:
+    description: "Prometheus configuration for network monitoring"
+
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 60s
+      evaluation_interval: 60s
+      external_labels:
+        cluster: 'production'
+        region: 'primary'
+
+    rule_files:
+      - "network_monitoring_rules.yml"
+
+    alerting:
+      alertmanagers:
+        - static_configs:
+            - targets:
+              - alertmanager:9093
+
+    scrape_configs:
+      # Network monitoring service
+      - job_name: 'network-monitoring'
+        static_configs:
+          - targets: ['network-monitoring:8012']
+        metrics_path: '/api/v1/system/metrics'
+        scrape_interval: 30s
+        scrape_timeout: 10s
+        honor_labels: true
+
+      # Kubernetes API server
+      - job_name: 'kubernetes-apiservers'
+        kubernetes_sd_configs:
+          - role: endpoints
+        scheme: https
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+            action: keep
+            regex: default;kubernetes;https
+
+      # Node exporter
+      - job_name: 'kubernetes-nodes'
+        kubernetes_sd_configs:
+          - role: node
+        relabel_configs:
+          - action: labelmap
+            regex: __meta_kubernetes_node_label_(.+)
+
+      # Cadvisor for container metrics
+      - job_name: 'kubernetes-cadvisor'
+        kubernetes_sd_configs:
+          - role: node
+        scheme: https
+        metrics_path: /metrics/cadvisor
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        relabel_configs:
+          - action: labelmap
+            regex: __meta_kubernetes_node_label_(.+)
+
+  network_monitoring_rules.yml: |
+    groups:
+    - name: network_monitoring_alerts
+      rules:
+      # Service health alerts
+      - alert: NetworkMonitoringServiceDown
+        expr: up{job="network-monitoring"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          service: network-monitoring
+        annotations:
+          summary: "Network monitoring service is down"
+          description: "Network monitoring service has been down for more than 2 minutes"
+
+      - alert: NetworkMonitoringHighResponseTime
+        expr: http_request_duration_seconds{quantile="0.95", job="network-monitoring"} > 0.5
+        for: 5m
+        labels:
+          severity: warning
+          service: network-monitoring
+        annotations:
+          summary: "Network monitoring service high response time"
+          description: "95th percentile response time is {{ $value }}s for more than 5 minutes"
+
+      - alert: NetworkMonitoringHighErrorRate
+        expr: rate(http_requests_total{status=~"5..", job="network-monitoring"}[5m]) > 0.1
+        for: 3m
+        labels:
+          severity: critical
+          service: network-monitoring
+        annotations:
+          summary: "Network monitoring service high error rate"
+          description: "Error rate is {{ $value | humanizePercentage }} for more than 3 minutes"
+
+      # Resource usage alerts
+      - alert: NetworkMonitoringHighMemoryUsage
+        expr: container_memory_usage_bytes{pod=~"network-monitoring-.*", namespace="monitoring"} / 1024 / 1024 > 100
+        for: 10m
+        labels:
+          severity: warning
+          service: network-monitoring
+        annotations:
+          summary: "Network monitoring service high memory usage"
+          description: "Memory usage is {{ $value }}MB for more than 10 minutes"
+
+      - alert: NetworkMonitoringHighCPUUsage
+        expr: rate(container_cpu_usage_seconds_total{pod=~"network-monitoring-.*", namespace="monitoring"}[5m]) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: network-monitoring
+        annotations:
+          summary: "Network monitoring service high CPU usage"
+          description: "CPU usage is {{ $value }}% for more than 5 minutes"
+
+      # Device connectivity alerts
+      - alert: DeviceConnectionFailure
+        expr: device_connection_status{job="network-monitoring"} == 0
+        for: 5m
+        labels:
+          severity: critical
+          service: network-monitoring
+        annotations:
+          summary: "Device connection failure detected"
+          description: "Device {{ $labels.device_ip }} has been disconnected for more than 5 minutes"
+
+      # Security alerts
+      - alert: HighAuthenticationFailureRate
+        expr: rate(authentication_failures_total{job="network-monitoring"}[5m]) > 10
+        for: 2m
+        labels:
+          severity: warning
+          service: network-monitoring
+        annotations:
+          summary: "High authentication failure rate"
+          description: "Authentication failure rate is {{ $value }} failures per second"
+
+      - alert: EmergencyActivation
+        expr: increase(emergency_activations_total{job="network-monitoring"}[1m]) > 0
+        for: 0m
+        labels:
+          severity: critical
+          service: network-monitoring
+        annotations:
+          summary: "Emergency activation detected"
+          description: "Emergency system has been activated. Reason: {{ $labels.reason }}"
+
+---
+# Prometheus deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: monitoring
+  labels:
+    app: prometheus
+    component: deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+      component: deployment
+  template:
+    metadata:
+      labels:
+        app: prometheus
+        component: deployment
+    spec:
+      serviceAccountName: prometheus
+      containers:
+      - name: prometheus
+        image: prom/prometheus:v2.40.0
+        args:
+          - '--config.file=/etc/prometheus/prometheus.yml'
+          - '--storage.tsdb.path=/prometheus/'
+          - '--web.console.libraries=/etc/prometheus/console_libraries'
+          - '--web.console.templates=/etc/prometheus/consoles'
+          - '--storage.tsdb.retention.time=30d'
+          - '--web.enable-lifecycle'
+          - '--web.enable-admin-api'
+        ports:
+        - containerPort: 9090
+          name: web
+        volumeMounts:
+        - name: prometheus-config-volume
+          mountPath: /etc/prometheus/
+        - name: prometheus-storage-volume
+          mountPath: /prometheus/
+        resources:
+          requests:
+            cpu: 200m
+            memory: 1000Mi
+          limits:
+            cpu: 1000m
+            memory: 2000Mi
+      volumes:
+      - name: prometheus-config-volume
+        configMap:
+          defaultMode: 420
+          name: prometheus-config
+      - name: prometheus-storage-volume
+        persistentVolumeClaim:
+          claimName: prometheus-pvc
+
+---
+# Prometheus service
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: monitoring
+  labels:
+    app: prometheus
+    component: service
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9090"
+spec:
+  type: ClusterIP
+  ports:
+  - port: 9090
+    targetPort: 9090
+    name: web
+  selector:
+    app: prometheus
+    component: deployment
+
+---
+# Persistent volume claim for Prometheus storage
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: prometheus-pvc
+  namespace: monitoring
+  labels:
+    app: prometheus
+    component: pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: fast-ssd

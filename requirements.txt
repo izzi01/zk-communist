@@ -1,0 +1,26 @@
+# ZK-Communist Time Liberation Server Requirements
+# Exact versions as specified in story requirements
+
+# Core Framework Dependencies
+fastapi==0.104.1
+pyzk==0.9.0
+apscheduler==3.10.4
+cryptography==41.0.7
+
+# Additional Required Packages
+pydantic==2.5.0
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+PyYAML==6.0.1
+
+# Security and Authentication
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+bcrypt==4.0.1
+
+# Optional Development Dependencies
+# Uncomment for development environment
+# pytest==7.4.3
+# pytest-asyncio==0.21.0
+# black==23.0.0
+# pre-commit==3.0.0

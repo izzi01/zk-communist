@@ -1,0 +1,179 @@
+<story-context id=".bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>1</storyId>
+    <title>Project Infrastructure Setup</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-21T14:30:00Z</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>/Users/bscx/projects/zk-communist/docs/sprint-artifacts/1-1-project-infrastructure-setup.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>revolutionary developer</asA>
+    <iWant>establish the complete project structure with FastAPI, dependencies, and GitOps repository</iWant>
+    <soThat>I have a solid foundation for implementing time manipulation capabilities</soThat>
+    <tasks>- [ ] Create complete project directory structure (AC: 1)
+  - [ ] Create src/api/v1/ with all endpoint modules
+  - [ ] Create src/core/ with service modules
+  - [ ] Create src/utils/ with utility modules
+  - [ ] Create config/ with templates and systemd files
+  - [ ] Create tests/ directory structure
+  - [ ] Create scripts/ directory with setup scripts
+  - [ ] Create docs/ directory for API and operations
+
+- [ ] Set up Python environment and dependencies (AC: 2)
+  - [ ] Create requirements.txt with specific versions
+  - [ ] Install FastAPI 0.104.1 with async support
+  - [ ] Install pyzk 0.8.0 for ZKTeco device communication
+  - [ ] Install APScheduler 3.10.4 for task scheduling
+  - [ ] Install cryptography 41.0.7 for AES-256-GCM encryption
+  - [ ] Install additional required packages (Pydantic, Uvicorn, etc.)
+
+- [ ] Initialize GitOps repository structure (AC: 3)
+  - [ ] Create zk-communist-gitops repository
+  - [ ] Set up base/ directory with namespace and RBAC
+  - [ ] Set up apps/ directory for deployment manifests
+  - [ ] Set up monitoring/ directory for observability
+  - [ ] Initialize Git repository with proper structure
+
+- [ ] Configure Docker build system (AC: 4)
+  - [ ] Create multi-stage Dockerfile
+  - [ ] Create .dockerignore for efficient builds
+  - [ ] Set up build scripts for different environments
+  - [ ] Configure container base image and security settings
+
+- [ ] Prepare CI/CD pipeline (AC: 5)
+  - [ ] Create Tekton pipeline definitions
+  - [ ] Set up automated image building
+  - [ ] Configure container registry integration
+  - [ ] Set up deployment automation
+
+- [ ] Configure development environment (AC: 6)
+  - [ ] Set up Poetry for dependency management
+  - [ ] Configure pre-commit hooks for code quality
+  - [ ] Create development server scripts with hot reload
+  - [ ] Set up testing framework and scripts</tasks>
+  </story>
+
+  <acceptanceCriteria>1. Given a fresh development environment
+When I execute the project setup script
+Then the complete project structure is created with all directories and files
+
+2. And all Python dependencies are installed including FastAPI 0.104.1, pyzk 0.8.0, APScheduler 3.10.4, and cryptography 41.0.7
+
+3. And the GitOps repository structure is created with base/, apps/, monitoring/ directories
+
+4. And Docker build configuration is ready for containerized deployment
+
+5. And CI/CD pipeline configuration is prepared for automated builds
+
+6. And development environment is configured with hot reload capabilities</acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <artifact>
+        <path>docs/architecture.md</path>
+        <title>Architecture Document: ZK-Communist Time Liberation Server</title>
+        <section>Project Structure</section>
+        <snippet>Complete project directory structure including src/api/v1/, src/core/, src/utils/, config/, tests/, scripts/, docs/ directories with FastAPI 0.104.1, pyzk 0.8.0, APScheduler 3.10.4, cryptography 41.0.7, and development workflow.</snippet>
+      </artifact>
+      <artifact>
+        <path>docs/architecture.md</path>
+        <title>Architecture Document: ZK-Communist Time Liberation Server</title>
+        <section>Technology Stack Details</section>
+        <snippet>FastAPI 0.104.1 for async performance, pyzk 0.8.0 for ZKTeco device communication, APScheduler 3.10.4 for cron-like scheduling, cryptography 41.0.7 for AES-256-GCM encryption, systemd for service deployment.</snippet>
+      </artifact>
+      <artifact>
+        <path>docs/architecture.md</path>
+        <title>Architecture Document: ZK-Communist Time Liberation Server</title>
+        <section>Development Environment</section>
+        <snippet>Setup script with virtual environment creation, dependency installation, systemd service setup, log directory creation, encryption key generation, and service enablement.</snippet>
+      </artifact>
+      <artifact>
+        <path>docs/sprint-artifacts/tech-spec-epic-1.md</path>
+        <title>Epic Technical Specification: Foundation & Infrastructure</title>
+        <section>Services and Modules</section>
+        <snippet>FastAPI Service with stealth configuration, Configuration Manager with encrypted storage, Kubernetes Deployment with resource constraints, GitOps Pipeline for automated deployment, Network Security policies, Emergency Response system.</snippet>
+      </artifact>
+      <artifact>
+        <path>docs/sprint-artifacts/tech-spec-epic-1.md</path>
+        <title>Epic Technical Specification: Foundation & Infrastructure</title>
+        <section>Dependencies and Integrations</section>
+        <snippet>Core dependencies: FastAPI 0.104.1, pyzk 0.8.0, APScheduler 3.10.4, cryptography 41.0.7, Pydantic 2.5.0, SQLite 3.44.2. Infrastructure: Kubernetes 1.28+, Flux CD 2.0+, Docker 24.0+, Prometheus 2.40+.</snippet>
+      </artifact>
+    </docs>
+    <code></code>
+    <dependencies>
+      <ecosystem name="python">
+        <package name="fastapi" version="0.104.1" purpose="Web service framework with async support" />
+        <package name="pyzk" version="0.8.0" purpose="ZKTeco device SDK foundation" />
+        <package name="apscheduler" version="3.10.4" purpose="Task scheduling for operation windows" />
+        <package name="cryptography" version="41.0.7" purpose="AES-256-GCM encryption for security" />
+        <package name="pydantic" version="2.5.0" purpose="Data validation and serialization" />
+        <package name="uvicorn" version="latest" purpose="ASGI server for FastAPI" />
+        <package name="pytest" version="7.4.3" purpose="Unit and integration testing" />
+        <package name="pytest-asyncio" version="0.21.0" purpose="Async testing support" />
+        <package name="black" version="23.0.0" purpose="Code formatting" />
+        <package name="pre-commit" version="3.0.0" purpose="Git hooks for quality" />
+      </ecosystem>
+      <ecosystem name="infrastructure">
+        <package name="kubernetes" version="1.28+" purpose="Container orchestration deployment platform" />
+        <package name="fluxcd" version="2.0+" purpose="GitOps deployment automation" />
+        <package name="docker" version="24.0+" purpose="Container image building" />
+        <package name="prometheus" version="2.40+" purpose="Metrics collection and monitoring" />
+        <package name="tekton" version="latest" purpose="CI/CD pipeline for automated builds" />
+      </ecosystem>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+  <constraint type="architecture">
+    <description>Must align with stealth operation requirements and be disguised as legitimate network monitoring tool</description>
+    <source>Architecture Document - Stealth Service Pattern</source>
+  </constraint>
+  <constraint type="performance">
+    <description>Development environment should support rapid iteration with hot reload capabilities</description>
+    <source>Story 1.1 Acceptance Criteria</source>
+  </constraint>
+  <constraint type="security">
+    <description>GitOps structure must support plausible deniability and appear as legitimate infrastructure</description>
+    <source>Architecture Document - Stealth Operations</source>
+  </constraint>
+  <constraint type="dependencies">
+    <description>All dependencies must be from reputable sources to maintain stealth operation</description>
+    <source>Tech Spec Epic 1 - Dependency Constraints</source>
+  </constraint>
+  <constraint type="container">
+    <description>Container image size should be minimal for stealth operation</description>
+    <source>Architecture Document - Performance Considerations</source>
+  </constraint>
+  <constraint type="development">
+    <description>Poetry for dependency management, pre-commit hooks for code quality</description>
+    <source>Story 1.1 Tasks - Configure development environment</source>
+  </constraint>
+</constraints>
+  <interfaces>
+  <interface name="FastAPI Service Interface" kind="REST API" signature="GET /api/v1/system/health" path="src/api/v1/system.py" purpose="Health check endpoint for Kubernetes probes" />
+  <interface name="FastAPI Service Interface" kind="REST API" signature="GET /api/v1/system/ready" path="src/api/v1/system.py" purpose="Readiness endpoint for Kubernetes probes" />
+  <interface name="Emergency Endpoint" kind="REST API" signature="POST /api/v1/emergency/panic-button" path="src/api/v1/emergency.py" purpose="Emergency shutdown without authentication" />
+  <interface name="FastAPI Application" kind="Application Class" signature="FastAPI(title='Network Monitoring Service')" path="src/main.py" purpose="Main FastAPI application with stealth configuration" />
+  <interface name="Configuration Manager" kind="Class" signature="class ConfigurationManager" path="src/core/config_manager.py" purpose="Encrypted configuration management" />
+  <interface name="Device Manager" kind="Class" signature="class ZKDeviceManager" path="src/core/device_manager.py" purpose="ZKTeco device communication foundation" />
+</interfaces>
+  <tests>
+    <standards>Unit testing with pytest 7.4.3 and pytest-asyncio 0.21.0 for async testing support. Integration testing with test containers for Kubernetes integration. Security testing with custom security tests and penetration testing approach. Performance testing with Locust for load testing and custom timing tests. Development testing with mocked ZKTeco device simulation. 95% of ACs covered by automated tests.</standards>
+    <locations>tests/unit/ for isolated unit tests with mocked dependencies. tests/integration/ for end-to-end API workflows and component interaction tests. tests/e2e/ for complete infrastructure testing with Kubernetes cluster deployment. tests/security/ for isolated security testing environment. tests/performance/ for performance testing cluster with monitoring.</locations>
+    <ideas>
+      <test idea="project_structure_verification" acceptance_criteria_id="1">Verify complete project structure created with all directories and files through filesystem verification test</test idea>
+      <test idea="dependency_installation_verification" acceptance_criteria_id="2">Verify FastAPI 0.104.1, pyzk 0.8.0, APScheduler 3.10.4, and cryptography 41.0.7 are correctly installed through dependency verification test</test idea>
+      <test idea="gitops_structure_verification" acceptance_criteria_id="3">Verify GitOps repository structure with base/, apps/, monitoring/ directories through repository structure verification</test idea>
+      <test idea="docker_configuration_test" acceptance_criteria_id="4">Verify Docker build configuration readiness through container build and image testing</test idea>
+      <test idea="cicd_pipeline_test" acceptance_criteria_id="5">Verify CI/CD pipeline configuration through automated build pipeline testing</test idea>
+      <test idea="development_environment_test" acceptance_criteria_id="6">Verify hot reload capabilities through development server testing with file change monitoring</test idea>
+      <test idea="poetry_dependency_management">Test Poetry setup with dependency installation, virtual environment creation, and dependency locking</test idea>
+      <test idea="pre_commit_hooks_validation">Test pre-commit hooks installation and functionality with code quality checks</test idea>
+      <test idea="development_server_hot_reload">Test development server script with hot reload on file changes</test idea>
+    </ideas>
+  </tests>
+</story-context>

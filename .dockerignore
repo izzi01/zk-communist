@@ -1,0 +1,167 @@
+# Git and version control
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Development and testing
+tests/
+pytest.ini
+.coverage
+htmlcov/
+.tox/
+.nox/
+.mypy_cache/
+.pytest_cache/
+.coverage.*
+
+# Python cache and compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+.venv
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Logs and temporary files
+*.log
+*.log.*
+logs/
+temp/
+tmp/
+*.tmp
+*.temp
+
+# Configuration and secrets
+.env
+.env.local
+.env.production
+config/config.yaml
+config/encryption_keys.yaml
+secrets/
+*.key
+*.pem
+*.crt
+*.crt
+*.key
+
+# Database and data files
+*.db
+*.sqlite
+*.sqlite3
+data/
+device_data/
+
+# Backup and archives
+backups/
+*.tar.gz
+*.zip
+*.rar
+
+# OS and system files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Node.js (if any)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Security and evidence files
+evidence/
+emergency_logs/
+audit_logs/
+
+# Container specific
+.dockerignore
+Dockerfile.*
+docker-compose*.yml
+
+# CI/CD and deployment
+.github/
+.gitlab-ci.yml
+.travis.yml
+Jenkinsfile
+
+# Monitoring and metrics
+metrics/
+monitoring/
+prometheus_*.yml
+
+# Scripts not needed in container
+scripts/install.sh
+scripts/deploy.sh
+scripts/backup_config.sh
+
+# Local development
+Makefile.local
+local.*
+dev.*
+
+# Kubernetes manifests (copied separately)
+zk-communist-gitops/
+k8s/
+kubernetes/
+
+# Security and compliance tools
+bandit-report.json
+safety-report.txt
+semgrep-report.json
+
+# Performance and profiling
+*.prof
+*.profile
+.prof.html
+
+# Build artifacts
+*.egg
+*.whl
+*.tar.bz2
+*.zip
+
+# Package manager files
+Pipfile.lock
+poetry.lock

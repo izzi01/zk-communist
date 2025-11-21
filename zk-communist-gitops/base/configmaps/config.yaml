@@ -1,0 +1,115 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: network-monitoring-config
+  namespace: monitoring
+  labels:
+    app: network-monitoring
+    component: config
+  annotations:
+    description: "Non-sensitive configuration for network monitoring service"
+
+data:
+  # Configuration file (non-sensitive values only)
+  config.yaml: |
+    # Network Monitoring Service Configuration
+    # Non-sensitive configuration only
+
+    system_config:
+      api_port: 8012
+      bind_address: "0.0.0.0"
+      service_name: "network-monitoring.service"
+      environment: "kubernetes"
+      debug: false
+
+    device_config:
+      device_port: 4370
+      device_model: "ZMM210_TFT"
+      connection_timeout: 5000
+      retry_attempts: 3
+      retry_delay: 30
+      heartbeat_interval: 30
+      sync_interval_min: 10
+      sync_interval_max: 20
+
+    security_config:
+      encryption_algorithm: "AES-256-GCM"
+      key_derivation: "hardware_fingerprint"
+      allowed_ips:
+        - "127.0.0.1"
+        - "::1"
+      require_https: false
+      rate_limit: 100
+
+    emergency_config:
+      panic_button_enabled: true
+      shutdown_timeout: 1000
+      auto_restore_time: true
+      cleanup_evidence: true
+      emergency_logging: true
+      emergency_log_retention: 30
+
+    operation_config:
+      operation_enabled: true
+      operation_window_start: "07:50"
+      operation_window_end: "08:10"
+      operation_days: ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
+      enable_randomization: true
+      start_time_variance: 5
+      interval_variance: 10
+
+    monitoring_config:
+      health_check_interval: 60
+      metrics_enabled: true
+      prometheus_port: 9090
+      performance_tracking: true
+      alert_thresholds:
+        response_time_ms: 200
+        error_rate_percent: 5
+        memory_usage_mb: 100
+
+    kubernetes_config:
+      namespace: "monitoring"
+      service_account: "network-monitoring"
+      service_name: "network-monitoring"
+      resources:
+        requests:
+          memory: "64Mi"
+          cpu: "50m"
+        limits:
+          memory: "128Mi"
+          cpu: "100m"
+      liveness_probe:
+        path: "/api/v1/system/health"
+        initial_delay: 30
+        period: 60
+      readiness_probe:
+        path: "/api/v1/system/ready"
+        initial_delay: 5
+        period: 10
+
+  # Environment configuration
+  env.properties: |
+    KUBERNETES_ENVIRONMENT=true
+    OPERATION_MODE=kubernetes
+    SYNC_INTERVAL_MIN=10
+    SYNC_INTERVAL_MAX=20
+    CONFIG_PATH=/app/config/config.yaml
+    LOG_LEVEL=WARNING
+
+  # Prometheus configuration
+  prometheus.yml: |
+    global:
+      scrape_interval: 60s
+      evaluation_interval: 60s
+
+    rule_files:
+      - "network_monitoring_rules.yml"
+
+    scrape_configs:
+      - job_name: 'network-monitoring'
+        static_configs:
+          - targets: ['network-monitoring:8012']
+        metrics_path: '/api/v1/system/metrics'
+        scrape_interval: 30s

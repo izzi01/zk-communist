@@ -1,0 +1,46 @@
+[Unit]
+Description=Network Latency Monitoring Service
+Documentation=https://internal.company/docs/network-monitoring
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+
+# Service execution
+ExecStart=/usr/bin/python3 /opt/zk-communist/src/main.py
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=10
+
+# Environment variables
+Environment=PYTHONPATH=/opt/zk-communist
+Environment=CONFIG_PATH=/opt/zk-communist/config/config.yaml
+Environment=ENCRYPTION_KEY_PATH=/opt/zk-communist/config/encryption_keys.yaml
+Environment=OPERATION_MODE=standalone
+
+# Security settings
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ReadWritePaths=/var/log/network-monitoring /var/opt/network-monitoring
+ProtectHome=yes
+RemoveIPC=yes
+
+# Resource limits for stealth
+MemoryMax=128M
+CPUQuota=100%
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=network-monitoring
+
+# Process limits
+LimitNOFILE=65536
+LimitNPROC=512
+
+[Install]
+WantedBy=multi-user.target
