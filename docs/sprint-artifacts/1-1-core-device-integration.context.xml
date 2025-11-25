@@ -1,0 +1,207 @@
+<story-context id="bmad_folder/bmm/workflows/4-implementation/story-context/1-1-core-device-integration" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>1</storyId>
+    <title>Core Device Integration</title>
+    <status>ready-for-dev</status>
+    <generatedAt>2025-11-24</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/zk-communist-epic-001-story-001.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>IT Admin operating the system</asA>
+    <iWant>reliable pyzk SDK integration with the ZKTeco ZMM210_TFT device</iWant>
+    <soThat>I can establish stable communication for time manipulation operations</soThat>
+    <tasks>
+- [ ] Implement DeviceManager class with async connection methods
+- [ ] Create custom exception classes for device communication errors
+- [ ] Add connection retry logic with exponential backoff
+- [ ] Implement connection health monitoring and heartbeat checks
+- [ ] Add structured logging for connection status changes
+- [ ] Create comprehensive unit tests for device manager functionality
+- [ ] Add integration tests for device communication
+- [ ] Implement resource cleanup and connection lifecycle management
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+### Functional Requirements:
+
+1. **Device Connection:**
+   - Successfully connects to ZKTeco ZMM210_TFT device using provided IP address and port 4370
+   - Authenticates using device credentials from Kubernetes Secret
+   - Validates connection stability before proceeding with operations
+   - Implements connection timeout handling (default: 10 seconds)
+
+2. **Connection Management:**
+   - Implements exponential backoff retry logic for connection failures
+   - Handles device disconnection gracefully with automatic reconnection attempts
+   - Provides connection health monitoring with heartbeat checks
+   - Logs all connection status changes with structured logging
+
+3. **Error Handling:**
+   - Catches and handles specific pyzk SDK exceptions appropriately
+   - Implements custom exception classes for device communication errors
+   - Provides meaningful error messages for troubleshooting
+   - Continues service operation with degraded functionality if device temporarily unavailable
+
+4. **Resource Management:**
+   - Properly closes connections to prevent resource leaks
+   - Implements context managers for connection lifecycle
+   - Handles concurrent connection attempts safely
+   - Manages connection pools if multiple connections needed
+
+### Non-Functional Requirements:
+
+1. **Reliability:**
+   - 99.9% connection uptime during manipulation windows
+   - Automatic recovery from temporary network issues
+   - Graceful degradation when device unavailable
+
+2. **Performance:**
+   - Connection establishment within 5 seconds
+   - Sub-second response time for device commands
+   - Minimal CPU and memory footprint for connection management
+
+3. **Logging:**
+   - Structured logging with JSON format
+   - Log levels: DEBUG (connection details), INFO (status changes), ERROR (failures)
+   - No sensitive credential information in logs
+   - Log rotation to prevent disk space issues
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/prd.md</path>
+        <title>Product Requirements Document</title>
+        <section>Technical Architecture</section>
+        <snippet>System built on Python 3.11+ with pyzk SDK for ZKTeco device communication, using async/await patterns for I/O operations and comprehensive error handling with connection retry logic.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec.md</path>
+        <title>Technical Specification</title>
+        <section>Source Tree Changes</section>
+        <snippet>src/services/device_manager.py - Core device communication service with async connection management, retry logic, and health monitoring for ZKTeco ZMM210_TFT devices.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec.md</path>
+        <title>Technical Specification</title>
+        <section>Error Handling</section>
+        <snippet>Comprehensive error handling with custom exception classes, connection retry with exponential backoff, graceful degradation during device unavailability, and structured logging for troubleshooting.</snippet>
+      </doc>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epic 1: ZK-Communist Time Liberation Server</title>
+        <section>User Stories</section>
+        <snippet>Story 1: Core Device Integration - Foundational pyzk SDK integration with ZKTeco ZMM210_TFT device for establishing stable communication channels.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>src/services/device_manager.py</path>
+        <kind>service</kind>
+        <symbol>DeviceManager</symbol>
+        <lines>1-200</lines>
+        <reason>Main device communication service class with async connection methods and health monitoring</reason>
+      </artifact>
+      <artifact>
+        <path>src/utils/exceptions.py</path>
+        <kind>utility</kind>
+        <symbol>DeviceConnectionError</symbol>
+        <lines>1-50</lines>
+        <reason>Custom exception class for device communication failures</reason>
+      </artifact>
+      <artifact>
+        <path>src/utils/exceptions.py</path>
+        <kind>utility</kind>
+        <symbol>DeviceAuthenticationError</symbol>
+        <lines>51-100</lines>
+        <reason>Custom exception class for device authentication failures</reason>
+      </artifact>
+      <artifact>
+        <path>tests/test_device_manager.py</path>
+        <kind>test</kind>
+        <symbol>test_device_connection</symbol>
+        <lines>1-80</lines>
+        <reason>Unit tests for device connection functionality with mocked pyzk SDK</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <ecosystem name="python">
+        <package name="pyzk" version="0.9.0">ZKTeco device communication SDK</package>
+        <package name="pytest" version="7.4.0">Testing framework with async support</package>
+        <package name="pytest-asyncio" version="0.21.0">Async testing support</package>
+      </ecosystem>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint name="Architecture Pattern">Async/await patterns for all I/O operations to prevent blocking during device communication</constraint>
+    <constraint name="Error Handling">Must implement custom exception classes for different device error scenarios (connection, auth, timeout, command)</constraint>
+    <constraint name="Connection Management">Exponential backoff retry logic with configurable max attempts and base multiplier</constraint>
+    <constraint name="Resource Management">Context managers for connection lifecycle to prevent resource leaks</constraint>
+    <constraint name="Logging">Structured JSON logging without sensitive credentials, with proper log levels (DEBUG/INFO/ERROR)</constraint>
+    <constraint name="Testing">Unit test coverage >95% with mocked device communication, integration tests for service interactions</constraint>
+    <constraint name="Performance">Connection establishment within 5 seconds, sub-second response for device commands</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface name="DeviceManager.connect" kind="async-method">
+      <signature>async def connect(self, ip_address: str, port: int, credentials: dict) -> bool</signature>
+      <path>src/services/device_manager.py</path>
+    </interface>
+    <interface name="DeviceManager.disconnect" kind="async-method">
+      <signature>async def disconnect(self) -> None</signature>
+      <path>src/services/device_manager.py</path>
+    </interface>
+    <interface name="DeviceManager.test_connection" kind="async-method">
+      <signature>async def test_connection(self) -> bool</signature>
+      <path>src/services/device_manager.py</path>
+    </interface>
+    <interface name="DeviceManager.execute_command" kind="async-method">
+      <signature>async def execute_command(self, command: str, **kwargs) -> Any</signature>
+      <path>src/services/device_manager.py</path>
+    </interface>
+    <interface name="DeviceManager.get_connection_status" kind="async-method">
+      <signature>async def get_connection_status(self) -> ConnectionStatus</signature>
+      <path>src/services/device_manager.py</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>Use pytest 7.4.0 with pytest-asyncio for async testing. Implement unit tests with >95% coverage using mocked pyzk SDK. Follow Google-style docstrings and arrange-act-assert pattern. Include integration tests for service interactions and error propagation through layers.</standards>
+    <locations>
+      <location>tests/test_device_manager.py</location>
+      <location>tests/test_integration_device_communication.py</location>
+      <location>tests/fixtures/device_mocks.py</location>
+    </locations>
+    <ideas>
+      <test idea="AC1.1: Mock pyzk connect function returning valid connection, verify connection establishment and status reporting">
+        <acceptanceCriteriaRef>AC1.1</acceptanceCriteriaRef>
+      </test>
+      <test idea="AC1.2: Test connection timeout handling with configurable timeout values">
+        <acceptanceCriteriaRef>AC1.4</acceptanceCriteriaRef>
+      </test>
+      <test idea="AC2.1: Mock pyzk connect raising connection exceptions, verify retry logic with exponential backoff">
+        <acceptanceCriteriaRef>AC2.1</acceptanceCriteriaRef>
+      </test>
+      <test idea="AC2.2: Test max retry attempt handling and proper failure reporting">
+        <acceptanceCriteriaRef>AC2.1</acceptanceCriteriaRef>
+      </test>
+      <test idea="AC3.1: Test with valid and invalid credentials, verify authentication error handling">
+        <acceptanceCriteriaRef>AC3.1</acceptanceCriteriaRef>
+      </test>
+      <test idea="AC3.2: Test custom exception classes for different device error scenarios">
+        <acceptanceCriteriaRef>AC3.2</acceptanceCriteriaRef>
+      </test>
+      <test idea="AC4.1: Test connection lifecycle (connect, use, disconnect) with proper resource cleanup">
+        <acceptanceCriteriaRef>AC4.1</acceptanceCriteriaRef>
+      </test>
+      <test idea="AC4.2: Test concurrent connection attempts and thread safety">
+        <acceptanceCriteriaRef>AC4.3</acceptanceCriteriaRef>
+      </test>
+    </ideas>
+  </tests>
+</story-context>

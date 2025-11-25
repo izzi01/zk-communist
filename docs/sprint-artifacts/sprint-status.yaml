@@ -1,8 +1,8 @@
-# generated: 2025-11-20T14:30:00Z
+# generated: 2025-11-24
 # project: zk-communist
-# project_key: file-system
+# project_key: zk-communist
 # tracking_system: file-system
-# story_location: "{project-root}/docs/sprint-artifacts/stories"
+# story_location: docs/sprint-artifacts
 
 # STATUS DEFINITIONS:
 # ==================
@@ -29,82 +29,19 @@
 # - SM typically drafts next story after previous one is 'done' to incorporate learnings
 # - Dev moves story to 'review', SM reviews, then Dev moves to 'done'
 
-generated: 2025-11-20T14:30:00Z
-project: zk-communist
-project_key: file-system
-tracking_system: file-system
-story_location: "{project-root}/docs/sprint-artifacts/stories"
+generated: "2025-11-24"
+project: "zk-communist"
+project_key: "zk-communist"
+tracking_system: "file-system"
+story_location: "docs/sprint-artifacts"
 
 development_status:
-  # Epic 1: Foundation & Infrastructure
+  # Epic 1: ZK-Communist Time Liberation Server (EPIC-001)
   epic-1: contexted
-  1-1-project-infrastructure-setup: done
-  1-2-fastapi-service-framework: backlog
-  1-3-kubernetes-deployment-configuration: backlog
-  1-4-gitops-pipeline-with-flux-cd: backlog
-  1-5-network-security-and-access-control: backlog
-  1-6-encrypted-configuration-management: backlog
-  1-7-device-connection-infrastructure: backlog
-  1-8-emergency-response-foundation: backlog
+  # Story 1: Core Device Integration (STORY-001) - Status: Ready for Development, File exists
+  1-1-core-device-integration: review
+  # Story 2: Time Manipulation Logic (STORY-002) - Status: Ready for Development, File exists
+  1-2-time-manipulation-logic: review
+  # Story 3: Kubernetes Deployment & Operations (STORY-003) - Status: Ready for Development, File exists
+  1-3-kubernetes-deployment-operations: done
   epic-1-retrospective: optional
-
-  # Epic 2: Device Communication & Control
-  epic-2: backlog
-  2-1-secure-device-connection-establishment: backlog
-  2-2-device-connectivity-testing: backlog
-  2-3-time-synchronization-engine: backlog
-  2-4-randomized-timestamp-generation: backlog
-  2-5-operation-window-management: backlog
-  2-6-device-heartbeat-monitoring: backlog
-  2-7-emergency-device-disconnection: backlog
-  epic-2-retrospective: optional
-
-  # Epic 3: Scheduling & Operation Control
-  epic-3: backlog
-  3-1-automated-schedule-activation: backlog
-  3-2-schedule-configuration-api: backlog
-  3-3-schedule-conflict-detection: backlog
-  3-4-manual-override-capabilities: backlog
-  3-5-operation-history-tracking: backlog
-  3-6-adaptive-randomization-system: backlog
-  epic-3-retrospective: optional
-
-  # Epic 4: Emergency & Safety Systems
-  epic-4: backlog
-  4-1-immediate-emergency-shutdown: backlog
-  4-2-device-time-restoration: backlog
-  4-3-panic-button-implementation: backlog
-  4-4-emergency-event-logging: backlog
-  4-5-automatic-fail-safe-triggers: backlog
-  4-6-emergency-status-monitoring: backlog
-  epic-4-retrospective: optional
-
-  # Epic 5: Security & Authentication
-  epic-5: backlog
-  5-1-api-key-authentication-system: backlog
-  5-2-advanced-rate-limiting: backlog
-  5-3-ip-address-authorization: backlog
-  5-4-api-key-rotation-system: backlog
-  5-5-console-emergency-access: backlog
-  5-6-security-event-monitoring: backlog
-  epic-5-retrospective: optional
-
-  # Epic 6: Configuration & Management
-  epic-6: backlog
-  6-1-configuration-management-api: backlog
-  6-2-encrypted-data-storage: backlog
-  6-3-configuration-change-validation: backlog
-  6-4-encrypted-backup-system: backlog
-  6-5-backup-restoration-system: backlog
-  6-6-configuration-history-management: backlog
-  epic-6-retrospective: optional
-
-  # Epic 7: Monitoring & Administration
-  epic-7: backlog
-  7-1-system-health-monitoring: backlog
-  7-2-performance-metrics-collection: backlog
-  7-3-operational-dashboard: backlog
-  7-4-system-alert-generation: backlog
-  7-5-system-log-management: backlog
-  7-6-maintenance-procedures: backlog
-  epic-7-retrospective: optional

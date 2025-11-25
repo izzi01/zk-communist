@@ -1,0 +1,514 @@
+---
+# ZK-Communist Time Liberation Server - Monitoring Configuration
+# Prometheus, ServiceMonitor, and AlertManager integration
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: zk-communist
+  namespace: zk-communist
+  labels:
+    app: zk-communist
+    component: monitoring
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: zk-communist-metrics-reader
+  labels:
+    app: zk-communist
+    component: monitoring
+rules:
+- nonResourceURLs: ["/metrics"]
+  verbs: ["get"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: zk-communist-metrics-reader
+  labels:
+    app: zk-communist
+    component: monitoring
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: zk-communist-metrics-reader
+subjects:
+- kind: ServiceAccount
+  name: zk-communist
+  namespace: zk-communist
+
+---
+# Prometheus ServiceMonitor
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: zk-communist-metrics
+  namespace: zk-communist
+  labels:
+    app: zk-communist
+    component: monitoring
+    release: prometheus
+  annotations:
+    description: "Collects metrics from ZK-Communist Time Liberation Server"
+spec:
+  selector:
+    matchLabels:
+      app: zk-communist
+  endpoints:
+  - port: metrics
+    path: /metrics
+    interval: 30s
+    scrapeTimeout: 10s
+    honorLabels: true
+    relabelings:
+    - sourceLabels: [__meta_kubernetes_pod_node_name]
+      targetLabel: node
+    - sourceLabels: [__meta_kubernetes_pod_name]
+      targetLabel: pod
+    - sourceLabels: [__meta_kubernetes_namespace]
+      targetLabel: namespace
+
+---
+# PrometheusRule for custom alerting
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: zk-communist-alerts
+  namespace: zk-communist
+  labels:
+    app: zk-communist
+    component: monitoring
+    release: prometheus
+  annotations:
+    description: "Alerting rules for ZK-Communist Time Liberation Server"
+spec:
+  groups:
+  - name: zk-communist.rules
+    rules:
+    - alert: ZKCommunistDown
+      expr: up{job="zk-communist"} == 0
+      for: 2m
+      labels:
+        severity: critical
+        service: zk-communist
+      annotations:
+        summary: "ZK-Communist Time Liberation Server is down"
+        description: "ZK-Communist Time Liberation Server has been down for more than 2 minutes."
+        runbook_url: "https://docs.zk-communist.io/troubleshooting"
+
+    - alert: ZKCommunistHighMemoryUsage
+      expr: container_memory_usage_bytes{pod=~"zk-communist-.*"} / container_spec_memory_limit_bytes * 100 > 90
+      for: 5m
+      labels:
+        severity: warning
+        service: zk-communist
+      annotations:
+        summary: "ZK-Communist high memory usage"
+        description: "ZK-Communist memory usage is above 90% for more than 5 minutes."
+
+    - alert: ZKCommunistHighCPUUsage
+      expr: rate(container_cpu_usage_seconds_total{pod=~"zk-communist-.*"}[5m]) * 100 > 80
+      for: 5m
+      labels:
+        severity: warning
+        service: zk-communist
+      annotations:
+        summary: "ZK-Communist high CPU usage"
+        description: "ZK-Communist CPU usage is above 80% for more than 5 minutes."
+
+    - alert: ZKCommunistDeviceConnectionFailure
+      expr: zk_communist_device_connection_status == 0
+      for: 1m
+      labels:
+        severity: warning
+        service: zk-communist
+      annotations:
+        summary: "ZK-Communist device connection failure"
+        description: "ZK-Communist cannot connect to the ZKTeco device."
+
+    - alert: ZKCommunistManipulationFailureRate
+      expr: rate(zk_communist_manipulation_failures_total[5m]) / rate(zk_communist_manipulation_total[5m]) * 100 > 20
+      for: 3m
+      labels:
+        severity: warning
+        service: zk-communist
+      annotations:
+        summary: "ZK-Communist high manipulation failure rate"
+        description: "ZK-Communist manipulation failure rate is above 20% for more than 3 minutes."
+
+    - alert: ZKCommunistNotInManipulationWindow
+      expr: zk_communist_manipulation_active == 0 and (hour() >= 7 and hour() <= 9)
+      for: 10m
+      labels:
+        severity: info
+        service: zk-communist
+      annotations:
+        summary: "ZK-Communist outside manipulation window"
+        description: "ZK-Communist is not in manipulation window during morning hours."
+
+---
+# Grafana Dashboard (as ConfigMap)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: zk-communist-grafana-dashboard
+  namespace: zk-communist
+  labels:
+    app: zk-communist
+    component: monitoring
+    grafana_dashboard: "1"
+  annotations:
+    description: "Grafana dashboard for ZK-Communist Time Liberation Server"
+data:
+  zk-communist-dashboard.json: |
+    {
+      "annotations": {
+        "list": [
+          {
+            "builtIn": 1,
+            "datasource": "-- Grafana --",
+            "enable": true,
+            "hide": true,
+            "iconColor": "rgba(0, 211, 255, 1)",
+            "name": "Annotations & Alerts",
+            "type": "dashboard"
+          }
+        ]
+      },
+      "editable": true,
+      "gnetId": null,
+      "graphTooltip": 0,
+      "id": null,
+      "links": [],
+      "panels": [
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": null,
+          "fill": 1,
+          "fillGradient": 0,
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 0
+          },
+          "hiddenSeries": false,
+          "id": 1,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 2,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "expr": "zk_communist_manipulation_total",
+              "format": "time_series",
+              "instant": false,
+              "interval": "",
+              "legendFormat": "Total Manipulations"
+            },
+            {
+              "expr": "rate(zk_communist_manipulation_total[5m])",
+              "format": "time_series",
+              "instant": false,
+              "interval": "",
+              "legendFormat": "Manipulations/sec"
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "Time Manipulation Operations",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ]
+        },
+        {
+          "cacheTimeout": null,
+          "colorBackground": false,
+          "colorPostfix": false,
+          "colorPrefix": false,
+          "colorValue": false,
+          "colors": [
+            "rgba(50, 172, 45, 0.97)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(245, 54, 54, 0.9)"
+          ],
+          "datasource": null,
+          "format": "none",
+          "gauge": {
+            "maxValue": 100,
+            "minValue": 0,
+            "show": true,
+            "thresholdLabels": false,
+            "thresholdMarkers": true
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 6,
+            "x": 12,
+            "y": 0
+          },
+          "id": 2,
+          "interval": null,
+          "links": [],
+          "mappingType": 1,
+          "mappingTypes": [
+            {
+              "name": "value to text",
+              "value": 1
+            },
+            {
+              "name": "range to text",
+              "value": 2
+            }
+          ],
+          "maxDataPoints": 100,
+          "nullPointMode": "connected",
+          "nullText": null,
+          "options": {},
+          "pluginVersion": "6.7.3",
+          "postfix": "",
+          "postfixFontSize": "50%",
+          "prefix": "",
+          "prefixFontSize": "50%",
+          "rangeMaps": [
+            {
+              "from": "null",
+              "text": "N/A",
+              "to": "null"
+            }
+          ],
+          "sparkline": {
+            "fillColor": "rgba(31, 118, 189, 0.18)",
+            "full": false,
+            "lineColor": "rgb(31, 118, 189)",
+            "show": false
+          },
+          "tableColumn": "",
+          "targets": [
+            {
+              "expr": "zk_communist_device_connection_status * 100",
+              "format": "time_series",
+              "instant": true,
+              "interval": "",
+              "legendFormat": "Device Status"
+            }
+          ],
+          "thresholds": "50,80",
+          "title": "Device Connection Status",
+          "type": "singlestat",
+          "valueFontSize": "80%",
+          "valueMaps": [
+            {
+              "options": {
+                "0": {
+                  "color": "red",
+                  "index": 0,
+                  "text": "Disconnected"
+                },
+                "1": {
+                  "color": "green",
+                  "index": 1,
+                  "text": "Connected"
+                }
+              },
+              "value": "status"
+            }
+          ],
+          "valueName": "current"
+        },
+        {
+          "datasource": null,
+          "fieldConfig": {
+            "defaults": {
+              "custom": {},
+              "decimals": 0,
+              "mappings": [],
+              "thresholds": {
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 6,
+            "x": 18,
+            "y": 0
+          },
+          "id": 3,
+          "options": {
+            "displayMode": "list",
+            "orientation": "horizontal",
+            "reduceOptions": {
+              "values": false,
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": ""
+            },
+            "fontSize": "12"
+          },
+          "pluginVersion": "6.7.3",
+          "targets": [
+            {
+              "expr": "zk_communist_uptime_seconds",
+              "format": "time_series",
+              "instant": true,
+              "interval": "",
+              "legendFormat": "Uptime"
+            },
+            {
+              "expr": "rate(zk_communist_manipulation_successes_total[5m]) * 100 / rate(zk_communist_manipulation_total[5m])",
+              "format": "time_series",
+              "instant": true,
+              "interval": "",
+              "legendFormat": "Success Rate %"
+            }
+          ],
+          "title": "System Status",
+          "type": "stat"
+        }
+      ],
+      "schemaVersion": 27,
+      "style": "dark",
+      "tags": [
+        "zk-communist",
+        "time-manipulation",
+        "worker-protection"
+      ],
+      "templating": {
+        "list": []
+      },
+      "time": {
+        "from": "now-1h",
+        "to": "now"
+      },
+      "timepicker": {},
+      "timezone": "",
+      "title": "ZK-Communist Time Liberation Server Dashboard",
+      "uid": "zk-communist-dashboard",
+      "version": 1
+    }
+
+---
+# OpenTelemetry Collector Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: otel-collector-config
+  namespace: zk-communist
+  labels:
+    app: zk-communist
+    component: monitoring
+    opentelemetry-collector-config: "true"
+data:
+  collector.yaml: |
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+          http:
+            endpoint: 0.0.0.0:4318
+
+    processors:
+      batch:
+      memory_limiter:
+        limit_mib: 512
+
+    exporters:
+      logging:
+        loglevel: info
+      prometheus:
+        endpoint: "0.0.0.0:8889"
+        namespace: "zk_communist"
+
+    service:
+      pipelines:
+        metrics:
+          receivers: [otlp]
+          processors: [memory_limiter, batch]
+          exporters: [logging, prometheus]
+
+---
+# Jaeger Service for distributed tracing (optional)
+apiVersion: jaegertracing.io/v1
+kind: Jaeger
+metadata:
+  name: zk-communist-jaeger
+  namespace: zk-communist
+  labels:
+    app: zk-communist
+    component: monitoring
+spec:
+  strategy: production
+  storage:
+    type: memory
+  ingress:
+    enabled: true
+    hosts:
+      - jaeger.zk-communist.local
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: /
+  agent:
+    strategy: DaemonSet

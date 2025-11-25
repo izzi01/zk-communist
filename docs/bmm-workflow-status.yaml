@@ -1,4 +1,7 @@
-# Workflow Status for ZK-Communist Project
+# Workflow Status Template
+
+# This tracks progress through BMM methodology Analysis, Planning, and Solutioning phases.
+# Implementation phase is tracked separately in sprint-status.yaml
 
 # STATUS DEFINITIONS:
 # ==================
@@ -12,29 +15,53 @@
 #   - {file-path}: File created/found (e.g., "docs/product-brief.md")
 #   - skipped: Optional/conditional workflow that was skipped
 
-generated: "2025-11-20T08:41:44.688Z"
+generated: "2025-11-23"
 project: "zk-communist"
-project_type: "Revolutionary Worker Solidarity Tool"
-selected_track: "bmad-method"
+project_type: "greenfield"
+selected_track: "quick-flow"
 field_type: "greenfield"
-workflow_path: "/Users/bscx/projects/zk-communist/.bmad/bmm/workflows/workflow-status/paths/method-greenfield.yaml"
-workflow_status:
-  # Phase 0: Discovery (Optional)
-  brainstorm-project: "skipped"
-  research: "/Users/bscx/projects/zk-communist/docs/research-technical-2025-11-20.md"
-  product-brief: "/Users/bscx/projects/zk-communist/docs/product-brief-zk-communist-2025-11-20.md"
+workflow_path: ".bmad/bmm/workflows/workflow-status/paths/quick-flow-greenfield.yaml"
+workflow_status: |
+  phases:
+    - phase: 0
+      name: "Discovery (Optional)"
+      optional: true
+      note: "User-selected during workflow-init"
+      workflows:
+        - id: "brainstorm-project"
+          optional: true
+          agent: "analyst"
+          command: "brainstorm-project"
+          included_by: "user_choice"
+          status: "docs/brainstorm-results.md"
 
-  # Phase 1: Planning
-  prd: "/Users/bscx/projects/zk-communist/docs/prd.md"
-  validate-prd: "optional"
-  create-design: "conditional"
+        - id: "research"
+          optional: true
+          agent: "analyst"
+          command: "research"
+          included_by: "user_choice"
+          note: "Can have multiple research workflows"
+          status: "docs/research-technical-2025-11-20.md"
 
-  # Phase 2: Solutioning
-  create-architecture: "required"
-  create-epics-and-stories: "required"
-  test-design: "recommended"
-  validate-architecture: "optional"
-  implementation-readiness: "required"
+    - phase: 1
+      name: "Planning"
+      required: true
+      workflows:
+        - id: "tech-spec"
+          required: true
+          agent: "pm"
+          command: "tech-spec"
+          output: "Technical Specification with stories (auto-detects epic if 2+ stories)"
+          note: "Quick Spec Flow - implementation-focused planning"
+          status: "docs/tech-spec.md"
 
-  # Phase 3: Implementation
-  sprint-planning: "required"
+    - phase: 2
+      name: "Implementation"
+      required: true
+      workflows:
+        - id: "sprint-planning"
+          required: true
+          agent: "sm"
+          command: "sprint-planning"
+          note: "Creates sprint plan with all stories - subsequent work tracked in sprint plan output, not workflow-status"
+          status: "required"

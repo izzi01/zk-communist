@@ -1,0 +1,235 @@
+<story-context id="bmad_folder/bmm/workflows/4-implementation/story-context/1-3-kubernetes-deployment-operations" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>3</storyId>
+    <title>Kubernetes Deployment & Operations</title>
+    <status>ready-for-dev</status>
+    <generatedAt>2025-11-24</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/zk-communist-epic-001-story-003.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>IT Admin deploying and monitoring the system</asA>
+    <iWant>a complete Kubernetes deployment with containerized service and configuration management</iWant>
+    <soThat>I can easily deploy, monitor, and maintain the time liberation service</soThat>
+    <tasks>
+- [ ] Create Dockerfile with multi-stage build for minimal image size
+- [ ] Generate Kubernetes Deployment manifest with HostNetwork and resource limits
+- [ ] Create ConfigMap for non-sensitive configuration parameters
+- [ ] Create Secret for sensitive device credentials
+- [ ] Implement proper health checks and liveness/readiness probes
+- [ ] Add comprehensive deployment documentation and procedures
+- [ ] Create container runtime tests and validation
+- [ ] Set up monitoring and logging integration for Kubernetes operations
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+### Functional Requirements:
+
+1. **Containerization:**
+   - Creates production-ready Docker container with Python 3.11+ runtime
+   - Implements multi-stage build for minimal image size
+   - Includes all Python dependencies from requirements.txt
+   - Configures proper entrypoint and health checks
+   - Implements non-root user for security
+
+2. **Kubernetes Deployment:**
+   - Creates Deployment manifest with appropriate resource limits and requests
+   - Implements HostNetwork: true for direct device communication access
+   - Configures proper liveness and readiness probes
+   - Implements proper pod security context and non-root execution
+   - Sets up appropriate labels and selectors for service management
+
+3. **Configuration Management:**
+   - Externalizes all non-sensitive configuration via ConfigMap
+   - Secures sensitive credentials (device passwords) via Kubernetes Secret
+   - Implements environment variable injection from both sources
+   - Provides configuration validation at startup
+   - Supports environment-specific configuration overrides
+
+4. **Service Lifecycle:**
+   - Implements graceful startup with configuration validation
+   - Provides proper shutdown handling and cleanup
+   - Supports rolling updates without service interruption
+   - Implements health monitoring and automatic restart on failure
+   - Enables scaling and resource management
+
+5. **Monitoring & Operations:**
+   - Outputs all logs to container stdout for kubectl access
+   - Implements structured logging with appropriate log levels
+   - Provides operational status and health information
+   - Enables log aggregation and monitoring integration
+   - Supports debugging and troubleshooting procedures
+
+### Non-Functional Requirements:
+
+1. **Resource Efficiency:**
+   - Container image size under 200MB
+   - Runtime resource usage within limits (100m CPU, 128Mi memory)
+   - Efficient startup time under 30 seconds
+
+2. **Operational Simplicity:**
+   - Single-command deployment process
+   - Configuration via standard Kubernetes manifests
+   - Monitoring through standard kubectl commands
+   - No special tooling or infrastructure required
+
+3. **Security:**
+   - Non-root container execution
+   - Secret management for sensitive data
+   - Network policies for device communication
+   - No sensitive information in container logs
+
+4. **Reliability:**
+   - Automatic restart on container failure
+   - Health monitoring with appropriate probes
+   - Rolling updates without service interruption
+   - Resource limit enforcement
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/prd.md</path>
+        <title>Product Requirements Document</title>
+        <section>Technical Architecture</section>
+        <snippet>Kubernetes-based deployment with HostNetwork access for direct device communication, ConfigMaps/Secrets for configuration management, and long-running deployment for precision timing control.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec.md</path>
+        <title>Technical Specification</title>
+        <section>Development Setup</section>
+        <snippet>Container development with Docker, Kubernetes deployment with HostNetwork: true, and deployment commands for building and pushing container images to registry.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec.md</path>
+        <title>Technical Specification</title>
+        <section>Technical Approach</section>
+        <snippet>Long-running Kubernetes Deployment (not CronJob) for precision timing control, minimal resource limits for operational stealth, and container logging to stdout for kubectl access.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec.md</path>
+        <title>Technical Specification</title>
+        <section>Source Tree Changes</section>
+        <snippet>k8s/deployment.yaml, k8s/configmap.yaml, k8s/secret.yaml - Complete Kubernetes manifests for deployment with HostNetwork access and configuration management.</snippet>
+      </doc>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epic 1: ZK-Communist Time Liberation Server</title>
+        <section>User Stories</section>
+        <snippet>Story 3: Kubernetes Deployment & Operations - Complete production-ready deployment infrastructure with containerization and configuration management.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>docker/Dockerfile</path>
+        <kind>dockerfile</kind>
+        <symbol>Dockerfile</symbol>
+        <lines>1-50</lines>
+        <reason>Multi-stage Docker build for minimal image size with Python 3.11+ runtime</reason>
+      </artifact>
+      <artifact>
+        <path>requirements.txt</path>
+        <kind>requirements</kind>
+        <symbol>requirements.txt</symbol>
+        <lines>1-10</lines>
+        <reason>Python dependencies including pyzk SDK and testing frameworks</reason>
+      </artifact>
+      <artifact>
+        <path>k8s/deployment.yaml</path>
+        <kind>kubernetes-manifest</kind>
+        <symbol>Deployment</symbol>
+        <lines>1-100</lines>
+        <reason>Kubernetes Deployment manifest with HostNetwork and resource limits</reason>
+      </artifact>
+      <artifact>
+        <path>k8s/configmap.yaml</path>
+        <kind>kubernetes-manifest</kind>
+        <symbol>ConfigMap</symbol>
+        <lines>1-30</lines>
+        <reason>Configuration management for non-sensitive settings</reason>
+      </artifact>
+      <artifact>
+        <path>k8s/secret.yaml</path>
+        <kind>kubernetes-manifest</kind>
+        <symbol>Secret</symbol>
+        <lines>1-20</lines>
+        <reason>Secure storage for device credentials and sensitive data</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <ecosystem name="docker">
+        <package name="python" version="3.11+">Container runtime base image</package>
+      </ecosystem>
+      <ecosystem name="kubernetes">
+        <package name="kubectl" version="latest">CLI for deployment and monitoring</package>
+      </ecosystem>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint name="Image Size">Container image must be under 200MB with multi-stage build optimization</constraint>
+    <constraint name="Resource Limits">Strict limits of 100m CPU and 128Mi memory for operational stealth</constraint>
+    <constraint name="Security">Non-root container execution (UID 65534) and secret management for sensitive data</constraint>
+    <constraint name="Network Access">HostNetwork: true required for direct ZKTeco device communication on UDP port 4370</constraint>
+    <constraint name="Configuration">Externalize all settings via ConfigMaps and Secrets, no hardcoded values</constraint>
+    <constraint name="Monitoring">All logs to stdout for kubectl access, structured JSON format preferred</constraint>
+    <constraint name="Deployment Process">Single-command deployment with standard kubectl apply commands</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface name="Container Entrypoint" kind="docker-entrypoint">
+      <signature>CMD ["python", "src/main.py"]</signature>
+      <path>docker/Dockerfile</path>
+    </interface>
+    <interface name="Health Check Liveness" kind="kubernetes-probe">
+      <signature>exec command: python -c "import sys; sys.exit(0)"</signature>
+      <path>k8s/deployment.yaml</path>
+    </interface>
+    <interface name="Health Check Readiness" kind="kubernetes-probe">
+      <signature>exec command: python -c "from src.services.device_manager import DeviceManager; DeviceManager()"</signature>
+      <path>k8s/deployment.yaml</path>
+    </interface>
+    <interface name="Environment Variables" kind="kubernetes-env">
+      <signature>DEVICE_IP, DEVICE_PASSWORD, MANIPULATION_WINDOW_START, etc.</signature>
+      <path>k8s/configmap.yaml, k8s/secret.yaml</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>Container testing with image build validation, runtime startup testing, and Kubernetes deployment validation. Monitor resource usage limits and validate security configurations. Test health check endpoints and configuration injection.</standards>
+    <locations>
+      <location>tests/test_container_build.py</location>
+      <location>tests/test_kubernetes_deployment.py</location>
+      <location>tests/test_container_runtime.py</location>
+    </locations>
+    <ideas>
+      <test idea="AC1.1: Test multi-stage Docker build process and verify final image size under 200MB">
+        <acceptanceCriteriaRef>AC1.2</acceptanceCriteriaRef>
+      </test>
+      <test idea="AC1.2: Validate container startup with proper Python 3.11+ runtime and non-root user execution">
+        <acceptanceCriteriaRef>AC1.5</acceptanceCriteriaRef>
+      </test>
+      <test idea="AC2.1: Test Kubernetes deployment manifest application and pod creation with HostNetwork: true">
+        <acceptanceCriteriaRef>AC2.1</acceptanceCriteriaRef>
+      </test>
+      <test idea="AC2.2: Validate resource limits enforcement (100m CPU, 128Mi memory) and pod security context">
+        <acceptanceCriteriaRef>AC2.4</acceptanceCriteriaRef>
+      </test>
+      <test idea="AC3.1: Test ConfigMap and Secret mounting with proper environment variable injection">
+        <acceptanceCriteriaRef>AC3.2</acceptanceCriteriaRef>
+      </test>
+      <test idea="AC3.2: Validate configuration validation at startup and error handling for missing settings">
+        <acceptanceCriteriaRef>AC3.4</acceptanceCriteriaRef>
+      </test>
+      <test idea="AC4.1: Test graceful startup with configuration validation and proper shutdown handling">
+        <acceptanceCriteriaRef>AC4.1</acceptanceCriteriaRef>
+      </test>
+      <test idea="AC5.1: Verify log output accessible via kubectl logs and structured JSON format">
+        <acceptanceCriteriaRef>AC5.1</acceptanceCriteriaRef>
+      </test>
+    </ideas>
+  </tests>
+</story-context>

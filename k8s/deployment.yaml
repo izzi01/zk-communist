@@ -1,0 +1,300 @@
+---
+# ZK-Communist Time Liberation Server - Kubernetes Deployment
+# Production-ready deployment with HostNetwork for device communication
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zk-communist
+  namespace: zk-communist
+  labels:
+    app: zk-communist
+    version: v1.0.0
+    component: time-liberation-server
+    part-of: zk-communist-system
+    managed-by: kubernetes
+    security-scan: "enabled"
+  annotations:
+    description: "ZK-Communist Time Liberation Server - Deploys workers from exploitative attendance systems"
+    deployment.kubernetes.io/revision: "1"
+    kubernetes.io/change-cause: "Initial deployment for worker protection"
+    monitoring: "prometheus-enabled"
+    logging: "fluent-bit-enabled"
+spec:
+  replicas: 1  # Single instance for device communication
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0  # No downtime during updates
+      maxSurge: 1        # Allow one extra pod during updates
+  selector:
+    matchLabels:
+      app: zk-communist
+  template:
+    metadata:
+      labels:
+        app: zk-communist
+        version: v1.0.0
+        component: time-liberation-server
+        part-of: zk-communist-system
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+        fluentbit.include: "true"
+        fluentbit.parser: "zk-communist"
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+        capabilities:
+          drop:
+            - ALL
+      hostNetwork: true  # Required for ZKTeco device communication on port 4370
+      dnsPolicy: ClusterFirstWithHostNet  # Use host networking but cluster DNS
+
+      # Node selection for device proximity (optional)
+      # affinity:
+      #   nodeAffinity:
+      #     requiredDuringSchedulingIgnoredDuringExecution:
+      #       nodeSelectorTerms:
+      #       - matchExpressions:
+      #         - key: zk-communist.io/device-access
+      #           operator: Exists
+
+      containers:
+      - name: zk-communist
+        image: zk-communist:latest
+        imagePullPolicy: IfNotPresent
+
+        # Environment variables from ConfigMap
+        envFrom:
+        - configMapRef:
+            name: zk-communist-config
+        - configMapRef:
+            name: zk-communist-config
+            optional: true  # Allow optional configmaps
+
+        # Environment variables from Secret
+        env:
+        - name: DEVICE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: zk-communist-secrets
+              key: device-password
+              optional: true  # Allow if no password set
+        - name: API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: zk-communist-secrets
+              key: api-key
+              optional: true
+
+        # Resource limits for stealth and efficiency
+        resources:
+          requests:
+            cpu: 50m      # Minimal CPU for scheduling
+            memory: 64Mi   # Minimal memory footprint
+          limits:
+            cpu: 200m     # Upper CPU limit
+            memory: 128Mi  # Memory limit to avoid resource hogging
+
+        # Container ports
+        ports:
+        - name: metrics
+          containerPort: 8080
+          protocol: TCP
+          description: "Prometheus metrics endpoint"
+        - name: device-comm
+          containerPort: 4370
+          protocol: UDP
+          description: "ZKTeco device communication (host network)"
+
+        # Health checks
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: metrics
+            scheme: HTTP
+          initialDelaySeconds: 30  # Wait for device connection
+          periodSeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 3
+          successThreshold: 1
+
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: metrics
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+          successThreshold: 1
+
+        startupProbe:
+          httpGet:
+            path: /startup
+            port: metrics
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 30  # 5 minutes for initial startup
+          successThreshold: 1
+
+        # Volume mounts
+        volumeMounts:
+        - name: logs
+          mountPath: /app/logs
+          readOnly: false
+        - name: data
+          mountPath: /app/data
+          readOnly: false
+        - name: tmp
+          mountPath: /tmp
+          readOnly: false
+        - name: timezone
+          mountPath: /etc/localtime
+          readOnly: true
+
+        # Container security context
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+
+      # Service account
+      serviceAccountName: zk-communist
+
+      # Volumes
+      volumes:
+      - name: logs
+        emptyDir:
+          sizeLimit: 100Mi
+      - name: data
+        emptyDir:
+          sizeLimit: 10Mi
+      - name: tmp
+        emptyDir:
+          sizeLimit: 50Mi
+      - name: timezone
+        hostPath:
+          path: /usr/share/zoneinfo/UTC
+          type: File
+
+      # Node scheduling constraints
+      # tolerations:
+      # - key: "zk-communist.io/dedicated"
+      #   operator: "Equal"
+      #   value: "true"
+      #   effect: "NoSchedule"
+
+      # Pod priority and preemption
+      priorityClassName: system-cluster-critical  # High priority for critical service
+
+      # Termination grace period
+      terminationGracePeriodSeconds: 30
+
+      # Restart policy
+      restartPolicy: Always
+
+---
+# Service for metrics and monitoring access
+apiVersion: v1
+kind: Service
+metadata:
+  name: zk-communist-metrics
+  namespace: zk-communist
+  labels:
+    app: zk-communist
+    component: time-liberation-server
+  annotations:
+    description: "ZK-Communist metrics endpoint for monitoring"
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
+    prometheus.io/path: "/metrics"
+spec:
+  type: ClusterIP  # Internal access only
+  ports:
+  - name: metrics
+    port: 8080
+    targetPort: metrics
+    protocol: TCP
+  selector:
+    app: zk-communist
+
+---
+# PodDisruptionBudget for high availability
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: zk-communist-pdb
+  namespace: zk-communist
+  labels:
+    app: zk-communist
+    component: time-liberation-server
+spec:
+  minAvailable: 0  # Allow disruption during maintenance (single pod system)
+  selector:
+    matchLabels:
+      app: zk-communist
+
+---
+# NetworkPolicy for security
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: zk-communist-netpol
+  namespace: zk-communist
+  labels:
+    app: zk-communist
+    component: time-liberation-server
+spec:
+  podSelector:
+    matchLabels:
+      app: zk-communist
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+    - namespaceSelector:
+        matchLabels:
+          name: logging
+    ports:
+    - protocol: TCP
+      port: 8080  # Metrics port
+  egress:
+  - {}  # Allow all egress (needed for device communication and package updates)
+
+---
+# Resource quota for namespace (optional)
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: zk-communist-quota
+  namespace: zk-communist
+spec:
+  hard:
+    requests.cpu: "100m"
+    requests.memory: 100Mi
+    limits.cpu: "500m"
+    limits.memory: 256Mi
+    count/pods: "2"
+    count/services: "2"
+    count/secrets: "5"
+    count/configmaps: "5"

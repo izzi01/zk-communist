@@ -1,0 +1,236 @@
+<story-context id="bmad_folder/bmm/workflows/4-implementation/story-context/1-2-time-manipulation-logic" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>2</storyId>
+    <title>Time Manipulation Logic</title>
+    <status>ready-for-dev</status>
+    <generatedAt>2025-11-24</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/zk-communist-epic-001-story-002.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>worker protected by the system</asA>
+    <iWant>the device time automatically set to randomized "before 8 AM" timestamps during the 7:50-8:10 AM window</iWant>
+    <soThat>my actual arrival time appears as on-time regardless of when I clock in</soThat>
+    <tasks>
+- [ ] Implement TimeManipulator class with time window detection
+- [ ] Create Scheduler class for continuous monitoring and sleep cycles
+- [ ] Add time helper utilities for window detection and randomization
+- [ ] Implement uniform distribution random time generation between 7:55-7:59 AM
+- [ ] Add variable interval management (30-90 seconds) between time updates
+- [ ] Create comprehensive unit tests for time manipulation logic
+- [ ] Add integration tests for end-to-end time manipulation cycles
+- [ ] Implement time-based testing with accelerated scenarios
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+### Functional Requirements:
+
+1. **Time Window Detection:**
+   - Activates manipulation only during Monday-Saturday 7:50-8:10 AM window
+   - Handles day boundary transitions correctly (Monday start, Saturday end)
+   - Accounts for timezone considerations and system time accuracy
+   - Provides clear status indication of manipulation window state
+
+2. **Random Time Generation:**
+   - Generates timestamps uniformly distributed between 7:55:00-7:59:59 AM
+   - Ensures second-level precision for maximum variation
+   - Implements proper randomization without predictable patterns
+   - Avoids repeating same timestamp within short time periods
+
+3. **Device Time Setting:**
+   - Successfully sets device system time using DeviceManager integration
+   - Handles device communication errors gracefully during time setting
+   - Validates successful time application before continuing
+   - Provides detailed logging of all time manipulation operations
+
+4. **Interval Management:**
+   - Implements variable intervals between time updates (30-90 seconds)
+   - Uses true randomization for interval selection
+   - Prevents pattern detection through timing analysis
+   - Maintains continuous manipulation throughout entire window
+
+5. **Window Lifecycle:**
+   - Automatically starts manipulation at 7:50:00 AM on Monday-Saturday
+   - Continuously operates until 8:10:00 AM window end
+   - Stops all manipulation activities precisely at window boundary
+   - Returns to normal monitoring mode outside manipulation windows
+
+### Non-Functional Requirements:
+
+1. **Precision Timing:**
+   - Window detection accuracy within 1 second
+   - Time setting operations completed within 2 seconds
+   - System clock synchronization with NTP for accuracy
+
+2. **Reliability:**
+   - 100% uptime during manipulation windows
+   - Automatic recovery from temporary device issues
+   - Continuous operation without manual intervention
+
+3. **Performance:**
+   - Minimal CPU usage during sleep cycles (<1%)
+   - Memory usage stays within allocated limits
+   - Efficient randomization algorithms without overhead
+
+4. **Logging:**
+   - Comprehensive logging of all manipulation operations
+   - Timestamps of each time setting operation
+   - Error conditions and recovery actions logged
+   - Performance metrics for monitoring and optimization
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/prd.md</path>
+        <title>Product Requirements Document</title>
+        <section>Functional Requirements</section>
+        <snippet>Time manipulation system creates randomized timestamps between 7:55-7:59 AM during 7:50-8:10 AM window, Monday-Saturday, with variable intervals between updates to prevent pattern detection.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec.md</path>
+        <title>Technical Specification</title>
+        <section>Source Tree Changes</section>
+        <snippet>src/services/time_manipulator.py - Core time manipulation logic with window detection, randomization algorithms, and DeviceManager integration for precise time setting operations.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec.md</path>
+        <title>Technical Specification</title>
+        <section>Sleep Cycle Management</section>
+        <snippet>Long-running deployment with sleep cycles for precision timing control, variable intervals (30-90 seconds) between time updates, and efficient resource usage during monitoring periods.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec.md</path>
+        <title>Technical Specification</title>
+        <section>Technical Approach</section>
+        <snippet>Continuous monitoring with active manipulation only during specified windows, uniform distribution of random timestamps, and integration with DeviceManager for actual device time setting.</snippet>
+      </doc>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epic 1: ZK-Communist Time Liberation Server</title>
+        <section>User Stories</section>
+        <snippet>Story 2: Time Manipulation Logic - Randomized timestamp generation during 7:50-8:10 AM window with continuous operation and worker protection functionality.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>src/services/time_manipulator.py</path>
+        <kind>service</kind>
+        <symbol>TimeManipulator</symbol>
+        <lines>1-300</lines>
+        <reason>Core time manipulation service with window detection, randomization, and device time setting</reason>
+      </artifact>
+      <artifact>
+        <path>src/services/scheduler.py</path>
+        <kind>service</kind>
+        <symbol>Scheduler</symbol>
+        <lines>1-200</lines>
+        <reason>Continuous monitoring service with sleep cycles and timing coordination</reason>
+      </artifact>
+      <artifact>
+        <path>src/utils/time_helpers.py</path>
+        <kind>utility</kind>
+        <symbol>is_manipulation_window</symbol>
+        <lines>1-50</lines>
+        <reason>Time window detection logic for Monday-Saturday 7:50-8:10 AM</reason>
+      </artifact>
+      <artifact>
+        <path>src/utils/time_helpers.py</path>
+        <kind>utility</kind>
+        <symbol>generate_random_timestamp</symbol>
+        <lines>51-100</lines>
+        <reason>Uniform distribution random time generation between 7:55-7:59 AM</reason>
+      </artifact>
+      <artifact>
+        <path>tests/test_time_manipulator.py</path>
+        <kind>test</kind>
+        <symbol>test_window_detection</symbol>
+        <lines>1-80</lines>
+        <reason>Unit tests for manipulation window boundary conditions and day transitions</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <ecosystem name="python">
+        <package name="pytest" version="7.4.0">Testing framework with time mocking capabilities</package>
+        <package name="pytest-asyncio" version="0.21.0">Async testing support for scheduler tests</package>
+        <package name="schedule" version="1.2.0">Task scheduling and timing utilities</package>
+      </ecosystem>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint name="Timing Precision">Window detection accuracy within 1 second, time setting operations within 2 seconds</constraint>
+    <constraint name="Randomization Algorithm">Uniform distribution between 7:55:00-7:59:59 AM with second-level precision and pattern avoidance</constraint>
+    <constraint name="Resource Usage">Minimal CPU usage (<1%) during sleep cycles, memory usage within allocated limits</constraint>
+    <constraint name="Window Logic">Strict Monday-Saturday activation, precise boundary handling at 7:50:00 and 8:10:00</constraint>
+    <constraint name="Interval Management">Variable intervals between 30-90 seconds using true randomization to prevent pattern detection</constraint>
+    <constraint name="Continuous Operation">100% uptime during manipulation windows with automatic recovery from device issues</constraint>
+    <constraint name="Logging">Comprehensive logging of all operations with timestamps, error conditions, and performance metrics</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface name="TimeManipulator.generate_random_time" kind="async-method">
+      <signature>async def generate_random_time(self) -> datetime</signature>
+      <path>src/services/time_manipulator.py</path>
+    </interface>
+    <interface name="TimeManipulator.set_device_time" kind="async-method">
+      <signature>async def set_device_time(self, target_time: datetime) -> bool</signature>
+      <path>src/services/time_manipulator.py</path>
+    </interface>
+    <interface name="TimeManipulator.is_manipulation_window" kind="async-method">
+      <signature>async def is_manipulation_window(self) -> bool</signature>
+      <path>src/services/time_manipulator.py</path>
+    </interface>
+    <interface name="TimeManipulator.start_manipulation_cycle" kind="async-method">
+      <signature>async def start_manipulation_cycle(self) -> None</signature>
+      <path>src/services/time_manipulator.py</path>
+    </interface>
+    <interface name="Scheduler.run_continuous_cycle" kind="async-method">
+      <signature>async def run_continuous_cycle(self) -> None</signature>
+      <path>src/services/scheduler.py</path>
+    </interface>
+    <interface name="Scheduler.sleep_with_monitoring" kind="async-method">
+      <signature>async def sleep_with_monitoring(self, seconds: int) -> None</signature>
+      <path>src/services/scheduler.py</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>Use pytest 7.4.0 with time mocking capabilities for accelerated scenario testing. Implement unit tests with >95% coverage, statistical validation of randomization algorithms, and time-based integration tests. Follow arrange-act-assert pattern and include boundary condition testing.</standards>
+    <locations>
+      <location>tests/test_time_manipulator.py</location>
+      <location>tests/test_scheduler.py</location>
+      <location>tests/test_time_helpers.py</location>
+      <location>tests/fixtures/time_mocks.py</location>
+    </locations>
+    <ideas>
+      <test idea="AC1.1: Test window boundaries (7:49:59, 7:50:00, 8:09:59, 8:10:00, 8:10:01) with time mocking">
+        <acceptanceCriteriaRef>AC1.1</acceptanceCriteriaRef>
+      </test>
+      <test idea="AC1.2: Test weekday/weekend behavior (Monday-Saturday vs Sunday) with day transitions">
+        <acceptanceCriteriaRef>AC1.2</acceptanceCriteriaRef>
+      </test>
+      <test idea="AC2.1: Verify uniform distribution across 7:55-7:59 range with statistical analysis">
+        <acceptanceCriteriaRef>AC2.1</acceptanceCriteriaRef>
+      </test>
+      <test idea="AC2.2: Ensure no repeating patterns in generated timestamps with multiple generation cycles">
+        <acceptanceCriteriaRef>AC2.3</acceptanceCriteriaRef>
+      </test>
+      <test idea="AC3.1: Mock DeviceManager integration, test successful time setting operations">
+        <acceptanceCriteriaRef>AC3.1</acceptanceCriteriaRef>
+      </test>
+      <test idea="AC3.2: Test error handling during device communication with graceful degradation">
+        <acceptanceCriteriaRef>AC3.2</acceptanceCriteriaRef>
+      </test>
+      <test idea="AC4.1: Verify random interval generation within 30-90 second range with distribution testing">
+        <acceptanceCriteriaRef>AC4.1</acceptanceCriteriaRef>
+      </test>
+      <test idea="AC5.1: Test complete manipulation cycle with accelerated time progression">
+        <acceptanceCriteriaRef>AC5.1</acceptanceCriteriaRef>
+      </test>
+    </ideas>
+  </tests>
+</story-context>
